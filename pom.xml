@@ -13,6 +13,7 @@
 	<version>1.0</version>
 	<name>TaskManagerApplication</name>
 	<description>Demo project for Spring Boot</description>
+	<packaging>jar</packaging>
 	<properties>
 		<java.version>11</java.version>
 		<querydsl.version>4.4.0</querydsl.version>
