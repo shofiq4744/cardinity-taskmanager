@@ -16,26 +16,26 @@ public class ErrorHandlingControllerAdvice {
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        
+    public RestApiResponse handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+		
 		Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
                 );
 
-        return errors;
+        return RestApiResponse.ERROR.setResponse(errors).setMessage("Validation fail");
     }
 	
 	@ExceptionHandler(ConstraintViolationException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	Map<String, String> onConstraintValidationException(ConstraintViolationException ex) {
+	public RestApiResponse onConstraintValidationException(ConstraintViolationException ex) {
 		
 		Map<String, String> errors = new HashMap<>();		
 		ex.getConstraintViolations().forEach(error ->{
 			errors.put(error.getPropertyPath().toString(), error.getMessage());
 		});
 
-		return errors;
+		return RestApiResponse.ERROR.setResponse(errors).setMessage("Validation fail");
   }
 	
 }

@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,7 +15,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
 import com.cardinity.taskmanager.common.ApiController;
+import com.cardinity.taskmanager.common.RestApiResponse;
 import com.cardinity.taskmanager.utill.JwtTokenUtil;
 
 @ApiController
@@ -45,7 +45,7 @@ public class AuthController {
 	
 	
 	@PostMapping(path="/authenticate")
-	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+	public RestApiResponse authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
 		User user = userRepository.findByUsername(loginRequest.getEmail());
 		LOGGER.info("INFO:: Login request for ", loginRequest.getEmail());
@@ -65,13 +65,13 @@ public class AuthController {
 				JwtResponse jwtResponse = new JwtResponse(accessToken, refreshToken);
 				jwtResponse.setAuthorities(authorities);
 				jwtResponse.setUsername(user.getUsername());
-				return ResponseEntity.ok(jwtResponse);
+				return RestApiResponse.OK.setResponse(jwtResponse);
 				
 			} catch (Exception e) {
-				return new ResponseEntity<String>(e.getCause().toString(), HttpStatus.UNAUTHORIZED);
+				return RestApiResponse.ERROR.setMessage(e.getMessage());
 			}
 		} else {
-			return new ResponseEntity<String>("User not found", HttpStatus.NOT_FOUND);
+			return RestApiResponse.ERROR.setMessage("User not found");
 		}
 	}
 
