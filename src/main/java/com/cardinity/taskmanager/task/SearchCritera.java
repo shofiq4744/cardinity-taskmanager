@@ -6,9 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SearchCritera {
-	
-	private String projectName;
-	
+		
 	private Long projectId;
 	
 	private Boolean isExpire;

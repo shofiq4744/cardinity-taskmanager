@@ -6,8 +6,8 @@ There are two default user will be generated on DB (table->users) when applicati
 
 #How to build::
 1. git clone https://github.com/shofiq4744/cardinity-taskmanager.git
-2. Go to project root directory
-3. Change the MySQL connection password and hostname(if needed)
+2. cd cardinity-taskmanager
+3. Change the MySQL connection password and hostname(if needed) on application.yml file
 2. mvn clean install (note use mvn generate-sources if the source not generated)
 3. cd target
 4. java -jar TaskManagerApplication-1.0.jar </br>
@@ -16,7 +16,7 @@ on http://localhost:9000/swagger-ui.html
 
 You can directly test all the end-point from swagger-ui 
 1. Execute auth end-point which will return an access token
-2. Use the access token after Bearer +token on the Authorization header
+2. Use the access token after Bearer (Bearer+" "+token) on the Authorization header
 3. Execute rest of end-point using the token
 
 #Use technology::
