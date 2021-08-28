@@ -114,7 +114,7 @@ public class TaskService {
             whereCondition.and(task.dueDate.before(today));
         }
         if (Objects.nonNull(dto.getStatus())) {
-            whereCondition.and(task.status.eq(Status.valueOf(dto.getStatus())));
+            whereCondition.and(task.status.eq(Status.valueOf(dto.getStatus().toUpperCase())));
         }
         if (Objects.nonNull(dto.getProjectId())) {
         	Optional<Project> project = projectRepository.findById(dto.getProjectId());
