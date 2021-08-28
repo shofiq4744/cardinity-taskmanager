@@ -13,8 +13,8 @@ public class SearchCritera {
 	
 	private String status;
 	
-	private String userTask;
+	private String taskByUser;
 	
-	private String userProject;
+	private String projectByUser;
 
 }

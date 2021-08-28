@@ -18,9 +18,7 @@ import com.cardinity.taskmanager.project.ProjectRepository;
 import com.cardinity.taskmanager.project.ProjectService;
 
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class ProjectControllerTest {
 

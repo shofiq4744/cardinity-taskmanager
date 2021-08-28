@@ -124,12 +124,12 @@ public class TaskService {
         }
         //Additional search criteria for ADMIN
         if (request.isUserInRole("ADMIN")) {
-        	if (Objects.nonNull(dto.getUserTask())) {
-        		whereCondition.and(task.createdBy.eq(dto.getUserTask()));
+        	if (Objects.nonNull(dto.getTaskByUser())) {
+        		whereCondition.and(task.createdBy.eq(dto.getTaskByUser()));
         	}
         	
-        	if (Objects.nonNull(dto.getUserProject())) {
-        		whereCondition.and(task.project.createdBy.eq(dto.getUserProject()));
+        	if (Objects.nonNull(dto.getProjectByUser())) {
+        		whereCondition.and(task.project.createdBy.eq(dto.getProjectByUser()));
         	}
         	
 		}
