@@ -27,15 +27,15 @@ STEP 2: use the access token (Bearer " "+token) to communicate secure end-point<
 Search api test case (use and operation for search)</br>
 <code>
 {
-  "isExpire": true, 		# filter expire task(due date before today)
-  "projectByUser": "string",# filter task by project creator
-  "projectId": 1,			# filter task by project id
-  "status": "string",		# filter task by status(open,in-progress,closed)
-  "taskByUser": "string"	# filter task by task creator
+  "isExpire": true, 
+  "projectByUser": "string",
+  "projectId": 1,
+  "status": "string",
+  "taskByUser": "string"
 }
 </code></br>
 for example if you want all task then pass all crireria null</br>
-if you want only expire task just pass isExpire=true</br>
+if you want only expire(due date before today) task just pass isExpire=true</br>
 if you want specific project just pass project id</br>
 if you want specific status just pass the status name</br>
 if you want specific user project just pass projectByUser=username</br>
