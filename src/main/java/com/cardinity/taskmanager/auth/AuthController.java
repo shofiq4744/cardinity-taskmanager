@@ -25,12 +25,9 @@ public class AuthController {
 	
 	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 	
-	private final AuthenticationManager authenticationManager;
-	
+	private final AuthenticationManager authenticationManager;	
 	private final UserRepository userRepository;
-	
 	private final UserDetailsService userService;
-
     private final JwtTokenUtil tokenProvider;
 	
 	public AuthController(AuthenticationManager authenticationManager,

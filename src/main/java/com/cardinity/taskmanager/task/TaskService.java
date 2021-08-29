@@ -12,14 +12,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import com.cardinity.taskmanager.exception.InvalidAccessException;
 import com.cardinity.taskmanager.exception.NotFoundException;
 import com.cardinity.taskmanager.exception.TaskAlreadyClosedException;
 import com.cardinity.taskmanager.project.Project;
 import com.cardinity.taskmanager.project.ProjectRepository;
+import com.cardinity.taskmanager.utill.Constant;
+import com.cardinity.taskmanager.utill.Permission;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 
@@ -39,13 +39,17 @@ public class TaskService {
 		this.entityManager = entityManager;
 	}
 	
-	public void save(TaskDto taskdto) throws Exception {
+	public void save(TaskDto taskdto,HttpServletRequest request) throws Exception {
 				
 		Project project = projectRepository.findById(taskdto.getProjectId())
-				   .orElseThrow(() ->new NotFoundException("Project not found"));
+				   .orElseThrow(() ->new NotFoundException(Constant.PROJECT_NOT_FOUND));
+		
+		if(!Permission.hasAccess(request, project)) {
+			throw new InvalidAccessException(Constant.INVALID_ACCESS);
+		}
 		
 		if(!contains(taskdto.getStatus().toUpperCase())){
-			throw new NotFoundException("Staus not found, please use OPEN,IN_PROGRESS,CLOSED");
+			throw new NotFoundException(Constant.INVALID_STATUS);
 		}
 		Task task = new Task(taskdto.getDescription(),Status.valueOf(taskdto.getStatus().toUpperCase()));
 		try {
@@ -53,7 +57,7 @@ public class TaskService {
 				task.setDueDate(new SimpleDateFormat("dd-MM-yyyy").parse(taskdto.getDueDate()));
 			}
 		} catch(ParseException e){
-			throw new ValidationException("Invalid date format for due date");
+			throw new ValidationException(Constant.INVALID_FORMAT);
 		}
 		if(Objects.nonNull(project)) {
 			task.setProject(project);
@@ -63,44 +67,54 @@ public class TaskService {
 	
 	public TaskDto getTask(Long id,HttpServletRequest request) throws Exception{
 		
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Task task = taskRepository.findById(id).orElseThrow(()->new Exception());
-		
-		if (request.isUserInRole("ADMIN") || task.getCreatedBy().equals(principal.getUsername())) {
-			return convertToDto(task);
-		} else {
-			throw new InvalidAccessException("Invalid access");
+		Task task = taskRepository.findById(id).orElseThrow(()->new NotFoundException(Constant.TASK_NOT_FOUND));		
+		if (Permission.hasAccess(request,task)) {
+			throw new InvalidAccessException(Constant.INVALID_ACCESS);
 		}
+			
+		return convertToDto(task);
 		
 	}
 	
 	public void update(TaskDto taskdto,HttpServletRequest request) throws Exception{
+		
 		Task task = taskRepository.findById(taskdto.getId())
-				.orElseThrow(() ->new NotFoundException("Task not found"));
+				.orElseThrow(() ->new NotFoundException(Constant.TASK_NOT_FOUND));
+		
+		if(!Permission.hasAccess(request, task)) {
+			throw new InvalidAccessException(Constant.INVALID_ACCESS);
+		}
+		
+		Optional<Project> project = projectRepository.findById(taskdto.getProjectId());
+		
+		if(project.isPresent() && !Permission.hasAccess(request, project.get())) {
+			throw new InvalidAccessException(Constant.INVALID_ACCESS);
+		}
 		
 		if(!contains(taskdto.getStatus().toUpperCase())){
-			throw new NotFoundException("Staus not found use OPEN,IN_PROGRESS,CLOSED");
+			throw new NotFoundException(Constant.INVALID_STATUS);
 		}
 		
 		if(task.getStatus().equals(Status.CLOSED)) {
-			throw new TaskAlreadyClosedException("Error! Task already colsed");
+			throw new TaskAlreadyClosedException(Constant.TASK_CLOSED);
+		}		
+
+		task.setDescription(taskdto.getDescription());
+		task.setStatus(Status.valueOf(taskdto.getStatus().toUpperCase()));
+		if(Objects.nonNull(project)) {
+			task.setProject(project.get());
 		}
 		
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if(request.isUserInRole("ADMIN") || principal.getUsername().equals(task.getCreatedBy())) {
-			task.setDescription(taskdto.getDescription());
-			task.setStatus(Status.valueOf(taskdto.getStatus().toUpperCase()));
-			try {
-				if(Objects.nonNull(taskdto.getDueDate())) {
-					task.setDueDate(new SimpleDateFormat("dd-MM-yyyy").parse(taskdto.getDueDate()));//TODO check valid date
-				}
-			} catch(ParseException e){
-				throw new ValidationException("Invalid date format for due date");
+		try {
+			if(Objects.nonNull(taskdto.getDueDate())) {
+				task.setDueDate(new SimpleDateFormat("dd-MM-yyyy").parse(taskdto.getDueDate()));
 			}
-			taskRepository.save(task);
-		}else {
-			throw new InvalidAccessException("Invalid access");
+		} catch(ParseException e){
+			throw new ValidationException(Constant.INVALID_FORMAT);
 		}
+		
+		taskRepository.save(task);
+		
 	}
 	
 	public List<TaskDto> search(SearchCritera dto,HttpServletRequest request) throws ParseException{
@@ -122,7 +136,7 @@ public class TaskService {
         		whereCondition.and(task.project.eq(project.get()));
         	}
         }
-        //Additional search criteria for ADMIN
+        
         if (request.isUserInRole("ADMIN")) {
         	if (Objects.nonNull(dto.getTaskByUser())) {
         		whereCondition.and(task.createdBy.eq(dto.getTaskByUser()));
@@ -132,6 +146,8 @@ public class TaskService {
         		whereCondition.and(task.project.createdBy.eq(dto.getProjectByUser()));
         	}
         	
+		} else {
+			whereCondition.and(task.createdBy.eq(Permission.currentUser()));
 		}
         
         return query.from(task)

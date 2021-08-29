@@ -4,12 +4,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import com.cardinity.taskmanager.exception.InvalidAccessException;
 import com.cardinity.taskmanager.exception.NotFoundException;
+import com.cardinity.taskmanager.utill.Constant;
+import com.cardinity.taskmanager.utill.Permission;
 
 @Service
 @Transactional
@@ -34,8 +33,8 @@ public class ProjectService {
 			return projectRepository.findAll().stream()
 					.map(this::convertToDto).collect(Collectors.toList());
 		}
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();		
-		return projectRepository.findByCreatedBy(principal.getUsername()).stream()
+		
+		return projectRepository.findByCreatedBy(Permission.currentUser()).stream()
 					.map(this::convertToDto).collect(Collectors.toList());
 		
 	}
@@ -43,18 +42,20 @@ public class ProjectService {
 	public void delete(Long id,HttpServletRequest request) throws Exception{
 		
 		Project project = projectRepository.findById(id)
-										   .orElseThrow(()->new NotFoundException("Project not found"));		
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if(request.isUserInRole("ADMIN") || principal.getUsername().equals(project.getCreatedBy())) {
-			projectRepository.delete(project);
-		}else {
-			throw new InvalidAccessException("Invalid access");
-		}	
+										   .orElseThrow(()->new NotFoundException(Constant.PROJECT_NOT_FOUND));		
+		
+		if(!Permission.hasAccess(request, project)) {
+			throw new InvalidAccessException(Constant.INVALID_ACCESS);
+		}
+		
+		projectRepository.delete(project);		
 				
 	}
 	
 	private ProjectDto convertToDto(Project project) {
+		
 		return new ProjectDto(project.getName());
+		
 	}
 
 }
