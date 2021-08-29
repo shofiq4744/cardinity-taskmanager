@@ -26,7 +26,7 @@ public class ProjectController {
 			projectService.save(dto);
 			return RestApiResponse.SUCCESS;
 		} catch(Exception e) {
-			return RestApiResponse.ERROR.setMessage(e.getMessage());
+			return RestApiResponse.ERROR.setResponse(null).setMessage(e.getMessage());
 		}
 		
 	}
@@ -38,7 +38,7 @@ public class ProjectController {
 			return RestApiResponse.OK
 					.setResponse(projectService.findAll(request));
 		} catch(Exception e) {
-			return RestApiResponse.ERROR.setMessage(e.getMessage());
+			return RestApiResponse.ERROR.setResponse(null).setMessage(e.getMessage());
 		}
 		
 	}
@@ -50,7 +50,7 @@ public class ProjectController {
 			projectService.delete(id,request);
 			return RestApiResponse.SUCCESS;
 		} catch(Exception e) {
-			return RestApiResponse.ERROR.setMessage(e.getMessage());
+			return RestApiResponse.ERROR.setResponse(null).setMessage(e.getMessage());
 		}
 		
 	}

@@ -28,7 +28,7 @@ public class TaskController {
 			taskService.save(task,request);
 			return RestApiResponse.SUCCESS;
 		} catch(Exception e) {
-			return RestApiResponse.ERROR.setMessage(e.getMessage());
+			return RestApiResponse.ERROR.setResponse(null).setMessage(e.getMessage());
 		}
 		
 	}
@@ -40,7 +40,7 @@ public class TaskController {
 			return RestApiResponse.OK
 								.setResponse(taskService.getTask(id,request));
 		} catch(Exception e) {
-			return RestApiResponse.ERROR.setMessage(e.getMessage());
+			return RestApiResponse.ERROR.setResponse(null).setMessage(e.getMessage());
 		}
 		
 	}
@@ -52,7 +52,7 @@ public class TaskController {
 			taskService.update(task,request);
 			return RestApiResponse.SUCCESS;
 		} catch(Exception e) {
-			return RestApiResponse.ERROR.setMessage(e.getMessage());
+			return RestApiResponse.ERROR.setResponse(null).setMessage(e.getMessage());
 		}
 		
 	}
@@ -64,7 +64,7 @@ public class TaskController {
 			return RestApiResponse.OK
 					.setResponse(taskService.search(critaria,request));
 		} catch(Exception e) {
-			return RestApiResponse.ERROR.setMessage(e.getMessage());
+			return RestApiResponse.ERROR.setResponse(null).setMessage(e.getMessage());
 		}
 		
 	}

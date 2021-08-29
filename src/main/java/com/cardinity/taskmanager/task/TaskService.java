@@ -68,7 +68,7 @@ public class TaskService {
 	public TaskDto getTask(Long id,HttpServletRequest request) throws Exception{
 		
 		Task task = taskRepository.findById(id).orElseThrow(()->new NotFoundException(Constant.TASK_NOT_FOUND));		
-		if (Permission.hasAccess(request,task)) {
+		if (!Permission.hasAccess(request,task)) {
 			throw new InvalidAccessException(Constant.INVALID_ACCESS);
 		}
 			
